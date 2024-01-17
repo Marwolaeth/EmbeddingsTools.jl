@@ -1,0 +1,15 @@
+name = "EmbeddingsTools"
+uuid = "81c6ba3f-3028-455b-8a86-eff211c369f5"
+authors = ["Andrej Pawluczenko <a.pawluczenko@gmail.com> and the demons"]
+version = "0.1.0-DEV"
+
+[compat]
+julia = "1.9"
+
+[extras]
+Aqua = "4c88cf16-eb10-579e-8560-4a9242c79595"
+JET = "c3a54625-cd67-489e-a8e7-0a5a0ff4e31b"
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[targets]
+test = ["Aqua", "JET", "Test"]
