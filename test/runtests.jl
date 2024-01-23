@@ -2,12 +2,14 @@ using EmbeddingsTools
 using Test
 using Aqua
 using JET
+import CSV: CSV, CSV.File, CSV.Tables
+using JLD2
 
 @testset "EmbeddingsTools.jl" begin
     @testset "Code quality (Aqua.jl)" begin
         Aqua.test_all(
             EmbeddingsTools,
-            ambiguities=(exclude=[CSV, JLD2], broken=true)
+            ambiguities=false
         )
     end
     @testset "Code linting (JET.jl)" begin

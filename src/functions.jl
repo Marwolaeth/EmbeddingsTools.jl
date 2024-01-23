@@ -10,7 +10,7 @@ _ext(path::AbstractString)::String
 Returns the extension of file in `path`, if any, and an empty string otherwise.
 """
 @inline function _ext(path::AbstractString)::String
-    ext = splitext(path)[2]
+    ext = Base.splitext(path)[2]
     return ext
 end
 
@@ -57,7 +57,7 @@ Returns a vector of indices of each `word` in `words` in the vocabulary `vocab` 
 
     idx = zeros(Int, n_words)
     @inbounds Threads.@threads for i ∈ 1:n_words
-        found = findfirst(vocab .≡ words[i])
+        found = Base.findfirst(vocab .≡ words[i])
         if !isnothing(found)
             idx[i] = found
         end
@@ -79,7 +79,7 @@ Returns an index of a `word` in the vocabulary `vocab`. Asserts that `word` is p
     vocab::Vector{String}
 )::Int
 
-    idx = findfirst(vocab .≡ word)
+    idx = Base.findfirst(vocab .≡ word)
 
     return (isnothing(idx) ? 0 : idx)
 end
@@ -97,7 +97,7 @@ Returns an index of a `word` in the vocabulary `vocab`. Asserts that `word` is p
     vocab::Vector{String}
 )::Int
 
-    idx = findfirst(vocab .≡ String(word))
+    idx = Base.findfirst(vocab .≡ String(word))
 
     return (isnothing(idx) ? 0 : idx)
 end
@@ -110,7 +110,7 @@ The function `read_vec()` is used to read a local embedding matrix from a text f
 """
 function read_vec(path; delim=' ')::WordEmbedding
     # Read dimensionality
-    ntokens, ndims = parse.(Int, split(readline(path), delim))
+    ntokens, ndims = Base.parse.(Int, split(readline(path), delim))
 
     # Don't try to read an entire huge vector of tokens
     ## Tackle it line-by-line
@@ -168,7 +168,7 @@ function read_giant_vec(
     keep_words::Union{Vector{String},Nothing}=nothing
 )::WordEmbedding
     # Read dimensionality
-    ntokens, ndims = parse.(Int, split(readline(path), delim))
+    ntokens, ndims = Base.parse.(Int, split(readline(path), delim))
 
     if isnothing(max_vocab_size) || !(0 < max_vocab_size < ntokens)
         max_vocab_size = ntokens
@@ -209,7 +209,7 @@ function read_giant_vec(
                 end
                 if ind > 0
                     emb.vocab[ind] = word
-                    emb.embeddings[:, ind] .= parse.(Float32, @view embedding[2:end])
+                    emb.embeddings[:, ind] .= Base.parse.(Float32, @view embedding[2:end])
                 end
                 index += 1
             end
@@ -275,7 +275,7 @@ function read_embedding(
     (file_ext ∈ BINARY_EXTS_SIMPLE) && return read_emb(path)
 
     # Read dimensionality
-    ntokens, ndims = parse.(Int, split(readline(path), delim))
+    ntokens, ndims = Base.parse.(Int, split(readline(path), delim))
 
     # Where is the best limit?
     (ntokens ≥ 600_000) && return read_giant_vec(
