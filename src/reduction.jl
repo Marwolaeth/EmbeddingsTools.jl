@@ -1,5 +1,5 @@
 import Statistics: mean
-import LinearAlgebra: eigvecs
+import LinearAlgebra: eigen
 
 """
 reduce_pca(X::Matrix{Float32}, n_components::Int=2)::Matrix{Float32}
