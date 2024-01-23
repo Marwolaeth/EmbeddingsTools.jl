@@ -27,9 +27,9 @@ Returns a vector of logical values indicating whether each of the `words` is pre
     words::Vector{String},
     vocab::Vector{String}
 )::Vector{Bool}
-    n_words = UInt32(length(words))
+    n_words = length(words)
     in_vocab = zeros(Bool, n_words)
-    @inbounds Threads.@threads for i::UInt32 ∈ UnitRange{UInt32}(1:n_words)
+    @inbounds Threads.@threads for i ∈ 1:n_words
         in_vocab[i] = words[i] ∈ vocab
     end
 
@@ -48,12 +48,15 @@ Returns a vector of indices of each `word` in `words` in the vocabulary `vocab` 
 @inline function _get_vocab_indices(
     words::Vector{String},
     vocab::Vector{String}
-)::Vector{UInt32}
-    n_words = UInt32(length(words))
+)::Vector{Int}
+    n_words = length(words)
 
-    idx = zeros(UInt32, n_words)
-    @inbounds Threads.@threads for i::UInt32 ∈ UnitRange{UInt32}(1:n_words)
-        idx[i] = UInt32(findfirst(vocab .≡ words[i]))
+    idx = zeros(Int, n_words)
+    @inbounds Threads.@threads for i ∈ 1:n_words
+        found = findfirst(vocab .≡ words[i])
+        if !isnothing(found)
+            idx[i] = found
+        end
     end
     return idx
 end
@@ -63,36 +66,36 @@ end
 _get_vocab_index(
     word::String,
     vocab::Vector{String}
-)::UInt32
+)::Int
 
 Returns an index of a `word` in the vocabulary `vocab`. Asserts that `word` is present in the vocabulary.
 """
 @inline function _get_vocab_index(
     word::String,
     vocab::Vector{String}
-)::UInt32
+)::Int
 
-    idx::UInt32 = UInt32(findfirst(vocab .≡ word))
+    idx = findfirst(vocab .≡ word)
 
-    return idx
+    return (isnothing(idx) ? 0 : idx)
 end
 
 """
 _get_vocab_index(
     word::String,
     vocab::Vector{String}
-)::UInt32
+)::Int
 
 Returns an index of a `word` in the vocabulary `vocab`. Asserts that `word` is present in the vocabulary. A word can be a substring.
 """
 @inline function _get_vocab_index(
     word::SubString{String},
     vocab::Vector{String}
-)::UInt32
+)::Int
 
-    idx::UInt32 = UInt32(findfirst(vocab .≡ String(word)))
+    idx = findfirst(vocab .≡ String(word))
 
-    return idx
+    return (isnothing(idx) ? 0 : idx)
 end
 
 ## Reading Embedding Vector Files ----
@@ -200,8 +203,10 @@ function read_giant_vec(
                 else
                     ind = index
                 end
-                emb.vocab[ind] = word
-                emb.embeddings[:, ind] .= parse.(Float32, @view embedding[2:end])
+                if ind > 0
+                    emb.vocab[ind] = word
+                    emb.embeddings[:, ind] .= parse.(Float32, @view embedding[2:end])
+                end
                 index += 1
             end
 
