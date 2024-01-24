@@ -2,34 +2,41 @@ import Statistics: mean
 import LinearAlgebra: eigen
 
 """
-reduce_pca(X::Matrix{Float32}, n_components::Int=2)::Matrix{Float32}
+    reduce_pca(X::Matrix{Float32}, r::Int=2)::Matrix{Float32}
 
-A limited PCA function that only returns the transformed input matrix `X`, assuming the matrix is transposed with observations in columns and variables in rows.
+Reduce a matrix using Principal component analysis. This function returns the transformed input matrix `X` using `r` first principal components. The function assumes that the matrix is transposed with observations in columns and variables in rows.
+
+*Note:* This function doesn't use `MultivariateStats.jl` to avoid unnecessary dependencies. We recommend using `PCA` from `MultivariateStats.jl` for principal component analysis.
 """
-function reduce_pca(X::Matrix{Float32}, n_components::Int=2)::Matrix{Float32}
+function reduce_pca(X::Matrix{Float32}, r::Int=2)::Matrix{Float32}
     # Original Dimensions
     m, n = size(X)
+    # Indices of λ and eigenvectors to be used
+    idx = m:-1:(m-(r-1))
 
     # Pre-allocate
-    C = zeros(Float32, m, m)
-    P = zeros(Float32, n_components, n)
+    X₀ = zeros(Float32, m, n)  # Centered source data
+    Σ = zeros(Float32, m, m)   # The covariance matrix
+    P = zeros(Float32, m, r)   # The projection (Selected eigenvectors)
+    Y = zeros(Float32, r, n)   # Transformed data (the result)
 
     # The Mean Vector
     μ = mean(X, dims=2)
 
     # Center
-    @inbounds X .= X .- μ
+    @inbounds X₀ .= X .- μ
 
     # The Covariance Matrix
-    @inbounds C .= (X * X') / (n - 1)
+    @inbounds Σ .= (X₀ * X₀') / (n - 1)
 
     # Eigenstuff
-    λ, vectors = eigen(C)
+    λ, V = eigen(Σ)
+    @assert maximum(λ) ≡ λ[end]
     ## For now, we don't need the eigenvalues
-    # λ_nc = λ[end-(n_components-1):end]
-    vectors_nc = vectors[:, end-(n_components-1):end]
+    # λ_nc = λ[idx]
+    P .= V[:, idx]
 
-    @inbounds P' .= X' * vectors_nc
+    @inbounds Y .= P'X₀
 
-    return P
+    return Y
 end
