@@ -44,7 +44,7 @@ using JET
                 emb_ind = index(emb)
                 @test try
                     # This will throw an error in any case:
-                    EmbeddingsTools.get(index(read_vec("tiny.vec")), "Sinister")
+                    EmbeddingsTools.get_vector(index(read_vec("tiny.vec")), "Sinister")
                 catch e
                     # This is what we are interested in: is the exception right?
                     isa(e, EmbeddingsTools.TokenNotFoundException)
