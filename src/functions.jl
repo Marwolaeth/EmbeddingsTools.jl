@@ -5,7 +5,7 @@ include("types.jl")
 # FUNCTIONS ----
 ## Utilities ----
 """
-_ext(path::AbstractString)::String
+    _ext(path::AbstractString)::String
 
 Returns the extension of file in `path`, if any, and an empty string otherwise.
 """
@@ -16,10 +16,10 @@ end
 
 ## Check if tokens are present in an embedding vocabulary ----
 """
-function _check_tokens(
-    words::Vector{String},
-    vocab::Vector{String}
-)::Vector{Bool}
+    function _check_tokens(
+        words::Vector{String},
+        vocab::Vector{String}
+    )::Vector{Bool}
 
 Returns a vector of logical values indicating whether each of the `words` is present in the vocabulary `vocab`.
 """
@@ -42,10 +42,10 @@ end
 
 ## Search for words in an embedding vocabulary ----
 """
-_get_vocab_indices(
-    words::Vector{String},
-    vocab::Vector{String}
-)::Vector{Int}
+    _get_vocab_indices(
+        words::Vector{String},
+        vocab::Vector{String}
+    )::Vector{Int}
 
 Returns a vector of indices of each `word` in `words` in the vocabulary `vocab` if `word` is present in the vocabulary.
 """
@@ -67,10 +67,10 @@ end
 
 ## Find index of a sinle word ----
 """
-_get_vocab_index(
-    word::String,
-    vocab::Vector{String}
-)::Int
+    _get_vocab_index(
+        word::String,
+        vocab::Vector{String}
+    )::Int
 
 Returns an index of a `word` in the vocabulary `vocab`. Asserts that `word` is present in the vocabulary.
 """
@@ -85,10 +85,10 @@ Returns an index of a `word` in the vocabulary `vocab`. Asserts that `word` is p
 end
 
 """
-_get_vocab_index(
-    word::String,
-    vocab::Vector{String}
-)::Int
+    _get_vocab_index(
+        word::String,
+        vocab::Vector{String}
+    )::Int
 
 Returns an index of a `word` in the vocabulary `vocab`. Asserts that `word` is present in the vocabulary. A word can be a substring.
 """
@@ -104,7 +104,7 @@ end
 
 ## Reading Embedding Vector Files ----
 """
-read_vec(path::AbstractString; delim::AbstractChar=' ')::WordEmbedding
+    read_vec(path::AbstractString; delim::AbstractChar=' ')::WordEmbedding
 
 The function `read_vec()` is used to read a local embedding matrix from a text file (.txt, .vec, etc) at a given `path`. It creates a `WordEmbedding` object using the CSV.jl package. The delimiter used for the text file can be set using the `delim` parameter. This function is a simplified version of `read_embedding()` and it always reads in the entire embedding table, making the logic more straightforward.
 """
@@ -152,12 +152,12 @@ function read_vec(path; delim=' ')::WordEmbedding
 end
 
 """
-read_giant_vec(
-    path::AbstractString;
-    delim::AbstractChar=' ',
-    max_vocab_size::Union{Int,Nothing}=nothing,
-    keep_words::Union{Vector{String},Nothing}=nothing
-)::WordEmbedding
+    read_giant_vec(
+        path::AbstractString;
+        delim::AbstractChar=' ',
+        max_vocab_size::Union{Int,Nothing}=nothing,
+        keep_words::Union{Vector{String},Nothing}=nothing
+    )::WordEmbedding
 
 The conservative version of `read_embedding()` that handles large embedding tables, such as those used in FastText. It is adapted from a similar function in Embeddings.jl. The function reads a local embedding matrix from a specified `path` by going through each line and creates a `WordEmbedding` object. Additionally, you can provide the delimiter using `delim` and retain only certain words by specifying a list `keep_words`. However, this function can be slow, so we recommend setting the `max_vocab_size` parameter to a value less than 150k.
 """
@@ -222,7 +222,7 @@ function read_giant_vec(
 end
 
 """
-read_emb(path::AbstractString)::WordEmbedding
+    read_emb(path::AbstractString)::WordEmbedding
 
 The function reads word embeddings from local binary embedding table files in `.jld` and `.emb` formats. These files are Julia binary files that contain a `WordEmbedding` object under the name `"embedding"`.
 """
@@ -235,7 +235,7 @@ function read_emb(path::AbstractString)::WordEmbedding
 end
 
 """
-read_indexed_emb(path::AbstractString)::WordEmbedding
+    read_indexed_emb(path::AbstractString)::WordEmbedding
 
 The function reads indexed word embeddings from local binary embedding table files in `.jld2` and `.iem` formats. These files are Julia binary files that contain an `IndexedWordEmbedding` object under the name `"embedding"`.
 """
@@ -248,7 +248,12 @@ function read_indexed_emb(path::AbstractString)::IndexedWordEmbedding
 end
 
 """
-read_embedding(path::AbstractString; delim::AbstractChar=' ', max_vocab_size::Union{Int,Nothing}=nothing, keep_words::Union{Vector{String},Nothing}=nothing)::WordEmbedding
+    read_embedding(
+        path::AbstractString;
+        delim::AbstractChar=' ',
+        max_vocab_size::Union{Int,Nothing}=nothing,
+        keep_words::Union{Vector{String},Nothing}=nothing
+    )::WordEmbedding
 
 The function `read_embedding()` is used to read embedding files in a conventional way. It creates a `WordEmbedding` object using CSV.jl. The function takes a path to the local embedding vector as an argument and has two optional keyword arguments: `max_vocab_size` and `keep_words`.
 
@@ -396,11 +401,11 @@ end
 end
 
 """
-get(emb::IndexedWordEmbedding, query::String)
+    get_vector(emb::IndexedWordEmbedding, query::String)
 
-`get()` interface to indexed word embedding objects: returns embedding vector (Float32) for a given token `query`. Called with the embedding object rather than with the dictionary. Type-stable: returns a view of the embedding vector or throws an exception.
+`get_vector()` returns embedding vector (Float32) for a given token `query`. Called with the embedding object rather than with the dictionary. Type-stable: returns a view of the embedding vector or throws an exception.
 """
-@inline function get(
+@inline function get_vector(
     emb::IndexedWordEmbedding,
     query::String
 )::EmbeddingVectorView
@@ -412,7 +417,7 @@ get(emb::IndexedWordEmbedding, query::String)
 end
 
 """
-safe_get(emb::IndexedWordEmbedding, query::String)
+    safe_get(emb::IndexedWordEmbedding, query::String)
 
 For internal use only. This function is similar to `get()` but returns a zero vector if the `query` is not in the vocabulary.
 """
@@ -429,7 +434,7 @@ end
 
 ## Embedding Slicing ----
 """
-subspace(emb::AbstractEmbedding, tokens::Vector{String})::WordEmbedding
+    subspace(emb::AbstractEmbedding, tokens::Vector{String})::WordEmbedding
 
 The `subspace()` function takes an existing embedding and a subset of its vocabulary as input and creates a new `WordEmbedding` object. The order of embedding vectors in the new embedding corresponds to the order of input `tokens`. If a token is not found in the source embedding vocabulary, a zero vector is returned for that token. 
 
@@ -457,7 +462,7 @@ It's worth noting that this method is relatively slow and doesn't assume the sou
 end
 
 """
-subspace(emb::IndexedWordEmbedding, tokens::Vector{String})::WordEmbedding
+    subspace(emb::IndexedWordEmbedding, tokens::Vector{String})::WordEmbedding
 
 The `subspace()` function takes an already indexed embedding and a subset of its vocabulary as input and generates a new `WordEmbedding` object. It requires two arguments: `emb` which is the indexed embedding, and `tokens` which is a vector of strings representing the subset of vocabulary.
 
@@ -487,7 +492,7 @@ Note that the output of the `subspace()` function is not an indexed embedding. S
 end
 
 """
-limit(emb::AbstractEmbedding, n::Integer)::WordEmbedding
+    limit(emb::AbstractEmbedding, n::Integer)::WordEmbedding
 
 The `limit()` function creates a copy of an existing word embedding, containing only the first `n` tokens. This function is similar to using a `max_vocab_size` argument in `read_embedding()`. However, using `read_vec()` + `limit()` or `read_vec()` + `subspace()` is generally faster than using `max_vocab_size` or `keep_words` arguments, respectively.
 """
@@ -504,7 +509,7 @@ function limit(emb::AbstractEmbedding, n::Integer)::WordEmbedding
 end
 
 """
-limit(emb::IndexedWordEmbedding, n::Integer)::IndexedWordEmbedding
+    limit(emb::IndexedWordEmbedding, n::Integer)::IndexedWordEmbedding
 
 The `limit()` function creates a copy of an existing indexed word embedding, containing only the first `n` tokens. This function is similar to using a `max_vocab_size` argument in `read_embedding()`. However, using `read_vec()` + `limit()` or `read_vec()` + `subspace()` is generally faster than using `max_vocab_size` or `keep_words` arguments, respectively.
 """
@@ -524,12 +529,12 @@ function limit(emb::IndexedWordEmbedding, n::Integer)::IndexedWordEmbedding
 end
 
 """
-write_embedding(
-    emb::WordEmbedding,
-    path::AbstractString;
-    max_vocab_size::Union{Int,Nothing}=nothing,
-    keep_words::Union{Vector{String},Nothing}=nothing
-)::Nothing
+    write_embedding(
+        emb::WordEmbedding,
+        path::AbstractString;
+        max_vocab_size::Union{Int,Nothing}=nothing,
+        keep_words::Union{Vector{String},Nothing}=nothing
+    )::Nothing
 
 The `write_embedding()` function saves a `WordEmbedding` object to a binary file specified by `path`. The vocabulary can be filtered with `keep_words` and limited to `max_vocab_size`.
 """
@@ -553,12 +558,12 @@ function write_embedding(
 end
 
 """
-write_embedding(
-    emb::IndexedWordEmbedding,
-    path::AbstractString;
-    max_vocab_size::Union{Int,Nothing}=nothing,
-    keep_words::Union{Vector{String},Nothing}=nothing
-)::Nothing
+    write_embedding(
+        emb::IndexedWordEmbedding,
+        path::AbstractString;
+        max_vocab_size::Union{Int,Nothing}=nothing,
+        keep_words::Union{Vector{String},Nothing}=nothing
+    )::Nothing
 
 The `write_embedding()` function saves an `IndexedWordEmbedding` object to a binary file specified by `path`. The vocabulary can be filtered with `keep_words` and limited to `max_vocab_size`.
 """
