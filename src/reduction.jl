@@ -2,9 +2,9 @@ import Statistics: mean
 import LinearAlgebra: eigen
 
 """
-    reduce_pca(X::Matrix{Float32}, r::Int=2)::Matrix{Float32}
+    reduce_pca(X::Matrix{Float32}, k::Int=2)::Matrix{Float32}
 
-Reduce a matrix using Principal component analysis. This function returns the transformed input matrix `X` using `r` first principal components. The function assumes that the matrix is transposed with observations in columns and variables in rows.
+Reduce a matrix using Principal component analysis. This function returns the transformed input matrix `X` using `k` first principal components. The function assumes that the matrix is transposed with observations in columns and variables in rows.
 
 *Note:* This function doesn't use `MultivariateStats.jl` to avoid unnecessary dependencies. We recommend using `PCA` from `MultivariateStats.jl` for principal component analysis.
 """
