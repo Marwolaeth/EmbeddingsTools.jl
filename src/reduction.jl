@@ -1,5 +1,5 @@
 import Statistics: mean
-import LinearAlgebra: eigen
+import LinearAlgebra: eigen, svd, Diagonal
 
 """
     reduce_pca(X::Matrix{Float32}, k::Int=2)::Matrix{Float32}
@@ -47,6 +47,42 @@ function reduce_pca(X::Matrix{Float32}, k::Int=2)::Matrix{Float32}
 
     @inbounds P .= V[:, idx]
     @inbounds Y .= P'X₀
+
+    return Y
+end
+
+"""
+    reduce_svd(X::Matrix{Float32}, k::Int=2)::Matrix{Float32}
+
+Reduce a matrix using Singular value decomposition. This function returns the transformed input matrix `X` using `k` first singular values. The function assumes that the matrix is transposed with observations in columns and variables in rows.
+"""
+function reduce_svd(X::Matrix{Float32}, k::Int=2)::Matrix{Float32}
+    # Original Dimensions
+    p, n = size(X)
+    # Limit k so that it can be computed
+    k = min(k, p, n)
+    # Indices of singular values and vectors to be used
+    idx = 1:k
+
+    # Pre-allocate
+    Y = zeros(Float32, k, n)   # Transformed data (the result)
+    Σ = zeros(Float32, k, k)   # Singular values matrix
+
+    # The decomposition
+    U, d, _ = svd(X')
+    dₖ = d[idx]
+    Σ .= Diagonal(dₖ)
+
+    # Check and report the explained variance
+    variance_explained = sum(dₖ .^ 2) / sum(d .^ 2)
+    println("SVD dimensionality reduction: $p => $k dimensions")
+    println(
+        "The first $k singular values account for \
+        $(round(Float64(variance_explained*100.), digits = 3))% \
+        of the total variance\n"
+    )
+
+    @inbounds Y' .= U[:, idx] * Σ
 
     return Y
 end
