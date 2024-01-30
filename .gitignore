@@ -23,6 +23,6 @@ docs/site/
 # environment.
 Manifest.toml
 .vscode/settings.json
-*.vec
+*.vec*
 !tiny.vec
 misc

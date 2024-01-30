@@ -408,6 +408,22 @@ end
 end
 
 """
+    get_vector(emb::WordEmbedding, query::String)
+
+`get_vector()` returns embedding vector (Float32) for a given token `query`. Called with the embedding object rather than with the dictionary. Type-stable: returns a view of the embedding vector or throws an exception.
+"""
+@inline function get_vector(
+    emb::WordEmbedding,
+    query::String
+)::EmbeddingVectorView
+    (query ∈ emb.vocab) || throw(TokenNotFoundException(query))
+    idx = _get_vocab_index(query, emb.vocab)
+    v::EmbeddingVectorView = view(emb.embeddings, :, idx)
+
+    return v
+end
+
+"""
     get_vector(emb::IndexedWordEmbedding, query::String)
 
 `get_vector()` returns embedding vector (Float32) for a given token `query`. Called with the embedding object rather than with the dictionary. Type-stable: returns a view of the embedding vector or throws an exception.
