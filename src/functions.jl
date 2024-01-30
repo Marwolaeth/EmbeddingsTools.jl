@@ -573,7 +573,7 @@ function reduce_emb(emb::AbstractEmbedding, k::Integer; method::String="pca")::W
 
     if method ≡ "pca"
         sub.embeddings .= reduce_pca(emb.embeddings, k)
-    elseif method == "svd"
+    elseif method ≡ "svd"
         sub.embeddings .= reduce_svd(emb.embeddings, k)
     else
         throw(UnknownReductionMethodException(method))
@@ -608,7 +608,7 @@ function reduce_emb(
 
     if method ≡ "pca"
         sub.embeddings .= reduce_pca(emb.embeddings, k)
-    elseif method == "svd"
+    elseif method ≡ "svd"
         sub.embeddings .= reduce_svd(emb.embeddings, k)
     else
         throw(UnknownReductionMethodException(method))
