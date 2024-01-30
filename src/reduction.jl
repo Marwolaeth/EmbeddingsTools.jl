@@ -11,6 +11,8 @@ Reduce a matrix using Principal component analysis. This function returns the tr
 function reduce_pca(X::Matrix{Float32}, k::Int=2)::Matrix{Float32}
     # Original Dimensions
     p, n = size(X)
+    # Limit k so that it can be computed
+    k = min(k, p, n)
     # Indices of λ and eigenvectors to be used
     idx = p:-1:(p-(k-1))
 
