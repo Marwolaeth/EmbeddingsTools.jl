@@ -1,6 +1,7 @@
 import CSV: CSV, CSV.File, CSV.Tables
 using JLD2
 include("types.jl")
+include("reduction.jl")
 
 # FUNCTIONS ----
 ## Utilities ----
@@ -523,6 +524,73 @@ function limit(emb::IndexedWordEmbedding, n::Integer)::IndexedWordEmbedding
         n,
         emb.ndims
     )
+
+    new::IndexedWordEmbedding = index(sub)
+    return new
+end
+
+"""
+    reduce(emb::AbstractEmbedding, k::Integer; method::String="pca")::WordEmbedding
+
+The following function takes an existing word embedding and reduces its embedding vectors to a specified number of dimensions `k`. The function returns a new WordEmbedding object. You can choose between two reduction techniques by setting the `method` parameter to either `pca` for Principal Component Analysis or `svd` for Singular Value Decomposition.
+"""
+function reduce(emb::AbstractEmbedding, k::Integer; method::String="pca")::WordEmbedding
+    # Current dimensions
+    p, n = size(emb.embeddings)
+    # Limit k so that it can be computed
+    k = min(k, p, n)
+    # Wrap the method argument
+    method = lowercase(method)
+
+    sub = WordEmbedding(
+        emb.embeddings[1:k, :],
+        emb.vocab,
+        n,
+        k
+    )
+
+    if method ≡ "pca"
+        sub.embeddings .= reduce_pca(emb.embeddings, k)
+    elseif method == "svd"
+        sub.embeddings .= reduce_svd(emb.embeddings, k)
+    else
+        throw(UnknownReductionMethodException(method))
+    end
+
+    return sub
+end
+
+"""
+    reduce(emb::IndexedWordEmbedding, k::Integer; method::String="pca")::WordEmbedding
+
+The following function takes an existing indexed word embedding and reduces its embedding vectors to a specified number of dimensions `k`. The function returns a new IndexedWordEmbedding object. You can choose between two reduction techniques by setting the `method` parameter to either `pca` for Principal Component Analysis or `svd` for Singular Value Decomposition.
+"""
+function reduce(
+    emb::IndexedWordEmbedding,
+    k::Integer;
+    method::String="pca"
+)::IndexedWordEmbedding
+    # Current dimensions
+    p, n = size(emb.embeddings)
+    # Limit k so that it can be computed
+    k = min(k, p, n)
+    # Wrap the method argument
+    method = lowercase(method)
+
+    sub = WordEmbedding(
+        emb.embeddings[1:k, :],
+        emb.vocab,
+        n,
+        k
+    )
+
+    if method ≡ "pca"
+        sub.embeddings .= reduce_pca(emb.embeddings, k)
+    elseif method == "svd"
+        sub.embeddings .= reduce_svd(emb.embeddings, k)
+    else
+        throw(UnknownReductionMethodException(method))
+    end
 
     new::IndexedWordEmbedding = index(sub)
     return new

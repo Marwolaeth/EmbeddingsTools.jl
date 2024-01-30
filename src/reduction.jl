@@ -12,7 +12,7 @@ function reduce_pca(X::Matrix{Float32}, k::Int=2)::Matrix{Float32}
     # Original Dimensions
     p, n = size(X)
     # Limit k so that it can be computed
-    k = min(k, p, n)
+    # k = min(k, p, n) # bypass as the check is done by the parent function
     # Indices of λ and eigenvectors to be used
     idx = p:-1:(p-(k-1))
 
@@ -60,7 +60,7 @@ function reduce_svd(X::Matrix{Float32}, k::Int=2)::Matrix{Float32}
     # Original Dimensions
     p, n = size(X)
     # Limit k so that it can be computed
-    k = min(k, p, n)
+    # k = min(k, p, n) # bypass as the check is done by the parent function
     # Indices of singular values and vectors to be used
     idx = 1:k
 

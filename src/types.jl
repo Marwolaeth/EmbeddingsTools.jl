@@ -44,3 +44,10 @@ end
 function Base.showerror(io::IO, e::TokenNotFoundException)::Nothing
     print(io, "Token “$(e.token)” not found!\n")
 end
+
+struct UnknownReductionMethodException <: Exception
+    method::String
+end
+function Base.showerror(io::IO, e::UnknownReductionMethodException)::Nothing
+    print(io, "Uknown method: “$(e.token)”\n")
+end
