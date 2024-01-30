@@ -30,7 +30,7 @@ Indexing is useful when the embedding table must be aligned with a pre-existing 
 
 ### Loading Word Embeddings
 
-The original goal of the package was to allow users to read local embedding vectors in Julia. We discovered that this feature was quite limited in **Embeddings.jl**. For example, a user can manually download an embedding table from [the FastTex repository](https://fasttext.cc/docs/en/crawl-vectors.html) or [RusVectōrēs project](https://rusvectores.org/en/) (a collection of Ukrainian and Russian embeddings). and then read it into Julia using:
+The original goal of the package was to allow users to read local embedding vectors in Julia. We discovered that this feature was quite limited in **Embeddings.jl**. For example, a user can manually download an embedding table from [the FastText repository](https://fasttext.cc/docs/en/crawl-vectors.html) or [RusVectōrēs project](https://rusvectores.org/en/) (a collection of Ukrainian and Russian embeddings). and then read it into Julia using:
 
 ```julia
 using EmbeddingsTools
