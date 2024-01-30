@@ -129,6 +129,7 @@ function read_vec(path; delim=' ')::WordEmbedding
     @inbounds emb.embeddings .= CSV.Tables.matrix(
         CSV.File(
             path;
+            quotechar='`',
             skipto=2,
             delim=delim,
             header=false,
@@ -141,6 +142,7 @@ function read_vec(path; delim=' ')::WordEmbedding
     @inbounds emb.vocab .= CSV.Tables.getcolumn(
         CSV.File(
             path;
+            quotechar='`',
             skipto=2,
             delim=delim,
             header=false,
@@ -335,6 +337,7 @@ function read_embedding(
         @inbounds vocab_placeholder .= CSV.Tables.getcolumn(
             CSV.File(
                 path;
+                quotechar='`',
                 skipto=2,
                 delim=delim,
                 header=false,
@@ -347,6 +350,7 @@ function read_embedding(
         # Connect the matrix inside the .vec file
         tab = CSV.File(
             path;
+            quotechar='`',
             skipto=2,
             delim=delim,
             header=false,
@@ -367,6 +371,7 @@ function read_embedding(
         @inbounds emb.embeddings .= CSV.Tables.matrix(
             CSV.File(
                 path;
+                quotechar='`',
                 skipto=2,
                 limit=max_vocab_size,
                 delim=delim,
@@ -381,6 +386,7 @@ function read_embedding(
         @inbounds emb.vocab .= CSV.Tables.getcolumn(
             CSV.File(
                 path;
+                quotechar='`',
                 skipto=2,
                 limit=max_vocab_size,
                 delim=delim,
