@@ -34,10 +34,18 @@ function reduce_pca(X::Matrix{Float32}, k::Int=2)::Matrix{Float32}
     # Eigenstuff
     λ, V = eigen(Σ)
     @assert maximum(λ) ≡ λ[end]
-    ## For now, we don't need the eigenvalues
-    # λ_nc = λ[idx]
-    P .= V[:, idx]
 
+    # Check and report the explained variance
+    λₖ = λ[idx]
+    variance_explained = sum(λₖ) / sum(λ)
+    println("PCA dimensionality reduction: $p => $k dimensions")
+    println(
+        "The first $k components account for \
+        $(round(Float64(variance_explained*100.), digits = 3))% \
+        of the total variance\n"
+    )
+
+    @inbounds P .= V[:, idx]
     @inbounds Y .= P'X₀
 
     return Y
