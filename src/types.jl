@@ -46,8 +46,8 @@ function Base.showerror(io::IO, e::TokenNotFoundException)::Nothing
 end
 
 struct UnknownReductionMethodException <: Exception
-    method::String
+    meth::String
 end
 function Base.showerror(io::IO, e::UnknownReductionMethodException)::Nothing
-    print(io, "Uknown method: “$(e.token)”\n")
+    print(io, "Uknown reduction method: “$(e.meth)”\n")
 end

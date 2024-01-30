@@ -47,7 +47,8 @@ using JET
                     get_vector(index(read_vec("tiny.vec")), "Sinister")
                 catch e
                     # This is what we are interested in: is the exception right?
-                    isa(e, EmbeddingsTools.TokenNotFoundException)
+                    @show isa(e, TokenNotFoundException)
+                    isa(e, TokenNotFoundException)
                 end
                 @test all(
                     EmbeddingsTools.safe_get(
@@ -81,7 +82,8 @@ using JET
                     reduce_emb(emb, 2, method="ppca")
                 catch e
                     # A specific kind of error
-                    isa(e, EmbeddingsTools.UnknownReductionMethodException)
+                    @show isa(e, UnknownReductionMethodException)
+                    isa(e, UnknownReductionMethodException)
                 end
                 @test size(reduce_emb(emb, 2).embeddings) ≡ (2, 4)
                 @test size(reduce_emb(emb, 13).embeddings) ≡ (4, 4)
