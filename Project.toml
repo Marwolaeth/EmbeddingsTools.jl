@@ -1,7 +1,7 @@
 name = "EmbeddingsTools"
 uuid = "81c6ba3f-3028-455b-8a86-eff211c369f5"
 authors = ["Andrej Pawluczenko <a.pawluczenko@gmail.com> and the demons"]
-version = "0.2.1"
+version = "0.2.2"
 
 [deps]
 CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
