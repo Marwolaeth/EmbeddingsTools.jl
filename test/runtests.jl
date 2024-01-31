@@ -47,8 +47,8 @@ using JET
                     get_vector(index(read_vec("tiny.vec")), "Sinister")
                 catch e
                     # This is what we are interested in: is the exception right?
-                    @show isa(e, TokenNotFoundException)
-                    isa(e, TokenNotFoundException)
+                    @show isa(e, OutOfVocabularyException)
+                    isa(e, OutOfVocabularyException)
                 end
                 @test all(
                     EmbeddingsTools.safe_get(

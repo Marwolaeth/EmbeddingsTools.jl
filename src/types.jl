@@ -38,10 +38,10 @@ struct IndexedWordEmbedding <: AbstractEmbedding
 end
 
 # Errors ----
-struct TokenNotFoundException <: Exception
+struct OutOfVocabularyException <: Exception
     token::String
 end
-function Base.showerror(io::IO, e::TokenNotFoundException)::Nothing
+function Base.showerror(io::IO, e::OutOfVocabularyException)::Nothing
     print(io, "Token “$(e.token)” not found!\n")
 end
 

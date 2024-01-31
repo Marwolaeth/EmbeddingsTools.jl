@@ -7,7 +7,7 @@ module EmbeddingsTools
 export AbstractEmbedding, WordEmbedding, IndexedWordEmbedding
 export read_vec, read_embedding, read_emb
 export index, get_vector, subspace, limit, reduce_emb
-export TokenNotFoundException, UnknownReductionMethodException
+export OutOfVocabularyException, UnknownReductionMethodException
 export write_embedding
 
 import CSV: CSV, CSV.File, CSV.Tables

@@ -416,7 +416,7 @@ end
     emb::WordEmbedding,
     query::String
 )::EmbeddingVectorView
-    (query ∈ emb.vocab) || throw(TokenNotFoundException(query))
+    (query ∈ emb.vocab) || throw(OutOfVocabularyException(query))
     idx = _get_vocab_index(query, emb.vocab)
     v::EmbeddingVectorView = view(emb.embeddings, :, idx)
 
@@ -434,7 +434,7 @@ end
 )::EmbeddingVectorView
     v = Base.get(emb.dict, query, TOKEN_NOT_FOUND)
 
-    (v ≡ TOKEN_NOT_FOUND) && throw(TokenNotFoundException(query))
+    (v ≡ TOKEN_NOT_FOUND) && throw(OutOfVocabularyException(query))
 
     return v
 end
