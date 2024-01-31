@@ -281,6 +281,7 @@ function read_embedding(
 
     # If Binary
     (file_ext ∈ BINARY_EXTS_SIMPLE) && return read_emb(path)
+    (file_ext ∈ BINARY_EXTS_INDEXD) && return read_indexed_emb(path)
 
     # Read dimensionality
     ntokens, ndims = Base.parse.(Int, split(readline(path), delim))
