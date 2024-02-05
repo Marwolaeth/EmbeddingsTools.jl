@@ -3,17 +3,17 @@ using Test
 using Aqua
 using JET
 
-@testset "EmbeddingsTools.jl" begin
-    @testset "Code quality (Aqua.jl)" begin
+@testset "EmbeddingsTools.jl" failfast = true verbose = true begin
+    @testset "Code quality (Aqua.jl)" verbose = true begin
         Aqua.test_all(
             EmbeddingsTools,
-            ambiguities=false
+            ambiguities=(recursive = false)
         )
     end
     @testset "Code linting (JET.jl)" begin
         JET.report_package(EmbeddingsTools; target_defined_modules=true)
     end
-    @testset "EmbeddingsTools.jl package functionality" begin
+    @testset "EmbeddingsTools.jl package functionality" verbose = true begin
         @testset "Reading .vec files" begin
             # Simple Reading
             @test read_vec("tiny.vec").vocab[end] ≡ "!"
@@ -174,6 +174,7 @@ end
 
 # Coverage and Cleanup
 # Pkg.add("Coverage")
+# using Coverage
 # # process '*.cov' files
 # coverage = process_folder()
 # covered_lines, total_lines = get_summary(coverage)

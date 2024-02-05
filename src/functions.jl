@@ -62,7 +62,6 @@ Returns a vector of indices of each `word` in `words` in the vocabulary `vocab` 
     return idx
 end
 
-## Find index of a sinle word ----
 """
     _get_vocab_index(
         word::String,
