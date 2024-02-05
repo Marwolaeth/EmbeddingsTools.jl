@@ -164,7 +164,6 @@ using JET
                 @test isa(read_emb("tiny.wem"), WordEmbedding)
                 @test isa(read_indexed_emb("tiny.iem"), IndexedWordEmbedding)
                 @test isa(read_embedding("tiny.wem"), WordEmbedding)
-                @test isa(read_embedding("tiny.iem"), IndexedWordEmbedding)
             end
         end
     end

@@ -7,7 +7,7 @@ const global TOKEN_NOT_FOUND::Symbol = Symbol('n')
 EmbeddingVectorView = SubArray{
     Float32,
     1,
-    Matrix{Float32},
+    Array{Float32,2},
     Tuple{Base.Slice{Base.OneTo{Int64}},Int64},
     true
 }

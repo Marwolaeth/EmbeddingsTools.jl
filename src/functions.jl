@@ -257,7 +257,7 @@ The function `read_embedding()` is used to read embedding files in a conventiona
 
 If `max_vocab_size` is specified, the function limits the size of the vector to that number. If a vector `keep_words` is provided, it only keeps those words. If a word in `keep_words` is not found, the function returns a zero vector for that word.
 
-If the file is a `WordEmbedding` object within a Julia binary file (with extension `.jld` or in specific formats `.emb` or `.wem`), the entire embedding is loaded, and keyword arguments are not applicable. You can also use the `read_emb()` function directly on binary files.
+If the file is a `WordEmbedding` object within a Julia binary file (with extension `.jld` or in specific formats `.emb` or `.wem`), the entire embedding is loaded, and keyword arguments are not applicable. You can also use the `read_emb()` function directly on binary files. For pre-saved indexed embeddings, `read_indexed_emb()` currently is the only option.
 
 Notes
 =====
@@ -271,12 +271,12 @@ function read_embedding(
     delim=' ',
     max_vocab_size::Union{Int,Nothing}=nothing,
     keep_words::Union{Vector{String},Nothing}=nothing
-)::Union{WordEmbedding,IndexedWordEmbedding}
+)::WordEmbedding
     file_ext = _ext(path)
 
     # If Binary
     (file_ext ∈ BINARY_EXTS_SIMPLE) && return read_emb(path)
-    (file_ext ∈ BINARY_EXTS_INDEXD) && return read_indexed_emb(path)
+    # (file_ext ∈ BINARY_EXTS_INDEXD) && return read_indexed_emb(path)
 
     # Read dimensionality
     ntokens, ndims = Base.parse.(Int, split(readline(path), delim))
@@ -438,12 +438,15 @@ end
 """
     safe_get(emb::IndexedWordEmbedding, query::String)
 
-For internal use only. This function is similar to `get()` but returns a zero vector if the `query` is not in the vocabulary.
+For internal use only. This function is similar to `get_vector()` but returns a zero vector if the `query` is not in the vocabulary.
 """
 @inline function safe_get(
     emb::IndexedWordEmbedding,
     query::String
 )::EmbeddingVectorView
+    #=
+    Will anyone explain: why can't Julia infer the return type of this function
+    while it always returns values of the same type, always =#
     v = Base.get(emb.dict, query, TOKEN_NOT_FOUND)
 
     (v ≡ TOKEN_NOT_FOUND) && return eachcol(zeros(Float32, emb.ndims))[1]
