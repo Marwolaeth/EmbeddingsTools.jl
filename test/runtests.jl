@@ -31,6 +31,11 @@ using JET
                 "tiny.vec",
                 keep_words=["to", "!"]
             ).vocab[1] ≡ "to"
+            # Empty keep_words
+            @test EmbeddingsTools.read_giant_vec(
+                "tiny.vec",
+                keep_words=Vector{String}()
+            ).vocab[end] ≡ "!"
         end
         @testset "Embedding Operations" begin
             # Indexing
@@ -54,9 +59,10 @@ using JET
                 emb_ind = index(emb)
                 @test try
                     # This will throw an error in any case:
-                    get_vector(index(read_vec("tiny.vec")), "Sinister")
+                    get_vector(emb_ind, "Sinister")
                 catch e
                     # This is what we are interested in: is the exception right?
+                    sprint(showerror, e)
                     @show isa(e, OutOfVocabularyException)
                     isa(e, OutOfVocabularyException)
                 end
@@ -107,6 +113,7 @@ using JET
                     reduce_emb(emb, 2, method="ppca")
                 catch e
                     # A specific kind of error
+                    sprint(showerror, e)
                     @show isa(e, UnknownReductionMethodException)
                     isa(e, UnknownReductionMethodException)
                 end

@@ -37,10 +37,6 @@ Returns a vector of logical values indicating whether each of the `words` is pre
     return in_vocab
 end
 
-function _check_tokens(words::Nothing, vocab::Vector{String})
-    nothing
-end
-
 ## Search for words in an embedding vocabulary ----
 """
     _get_vocab_indices(
