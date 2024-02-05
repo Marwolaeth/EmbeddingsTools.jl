@@ -2,6 +2,7 @@
 
 [![Build Status](https://github.com/Marwolaeth/EmbeddingsTools.jl/actions/workflows/CI.yml/badge.svg?branch=main)](https://github.com/Marwolaeth/EmbeddingsTools.jl/actions/workflows/CI.yml?query=branch%3Amain)
 [![Aqua](https://raw.githubusercontent.com/JuliaTesting/Aqua.jl/master/badge.svg)](https://github.com/JuliaTesting/Aqua.jl)
+[![codecov](https://codecov.io/gh/Marwolaeth/EmbeddingsTools.jl/graph/badge.svg?token=3LLFUVWWFV)](https://codecov.io/gh/Marwolaeth/EmbeddingsTools.jl)
 
 **EmbeddingsTools.jl** is a Julia package that provides additional tools for working with word embeddings, complementing existing packages such as **[Embeddings.jl](https://github.com/JuliaText/Embeddings.jl)**. Please note that the compatibility with other packages is currently limited, namely, type conversions are currently missing. Still, this package can be used as a standalone tool for working with embedding vectors.
 
