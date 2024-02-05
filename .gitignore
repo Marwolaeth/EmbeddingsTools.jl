@@ -26,3 +26,5 @@ Manifest.toml
 *.vec*
 !tiny.vec
 misc
+*.wem
+*.iem

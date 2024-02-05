@@ -276,7 +276,7 @@ function read_embedding(
     delim=' ',
     max_vocab_size::Union{Int,Nothing}=nothing,
     keep_words::Union{Vector{String},Nothing}=nothing
-)::WordEmbedding
+)::Union{WordEmbedding,IndexedWordEmbedding}
     file_ext = _ext(path)
 
     # If Binary

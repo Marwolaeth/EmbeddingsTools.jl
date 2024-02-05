@@ -21,6 +21,16 @@ using JET
             @test read_embedding("tiny.vec", max_vocab_size=2).vocab[end] ≡ "to"
             # Word List
             @test read_embedding("tiny.vec", keep_words=["!"]).vocab[1] == "!"
+            # Conventional reading function
+            @test EmbeddingsTools.read_giant_vec("tiny.vec").vocab[end] ≡ "!"
+            @test EmbeddingsTools.read_giant_vec(
+                "tiny.vec",
+                max_vocab_size=2
+            ).vocab[end] ≡ "to"
+            @test EmbeddingsTools.read_giant_vec(
+                "tiny.vec",
+                keep_words=["to", "!"]
+            ).vocab[1] ≡ "to"
         end
         @testset "Embedding Operations" begin
             # Indexing
@@ -55,6 +65,21 @@ using JET
                         emb_ind,
                         "Sinister"
                     ) .≡ zeros(Float32, emb.ndims)
+                )
+                # Equivalence across embedding classes
+                @test all(get_vector(emb, "!") .≡ get_vector(emb_ind, "!"))
+                # Type stability
+                @test isa(
+                    get_vector(emb, "!"),
+                    EmbeddingsTools.EmbeddingVectorView
+                )
+                @test isa(
+                    get_vector(emb_ind, "!"),
+                    EmbeddingsTools.EmbeddingVectorView
+                )
+                @test isa(
+                    EmbeddingsTools.safe_get(emb_ind, "Sinister"),
+                    EmbeddingsTools.EmbeddingVectorView
                 )
             end
             # Subspacing
@@ -91,5 +116,60 @@ using JET
                 @test reduce_emb(emb_ind, 13, method="svd").ndims ≡ 4
             end
         end
+        # Binary IO
+        @testset "Binary Embeddings IO" begin
+            emb = read_vec("tiny.vec")
+            emb_ind = index(emb)
+            @testset "Write Binary Embeddings" begin
+                # Limited vocabulary
+                @test begin
+                    write_embedding(emb, "tiny.wem", max_vocab_size=1)
+                    isfile("tiny.wem")
+                end
+                @test begin
+                    write_embedding(emb_ind, "tiny.iem", max_vocab_size=1)
+                    isfile("tiny.iem")
+                end
+                rm("tiny.iem")
+                rm("tiny.wem")
+                # Selected vocabulary
+                @test begin
+                    write_embedding(emb, "tiny.wem", keep_words=["to", "!"])
+                    isfile("tiny.wem")
+                end
+                @test begin
+                    write_embedding(emb_ind, "tiny.iem", keep_words=["to", "!"])
+                    isfile("tiny.iem")
+                end
+                rm("tiny.iem")
+                rm("tiny.wem")
+                # No options
+                @test begin
+                    write_embedding(emb, "tiny.wem")
+                    isfile("tiny.wem")
+                end
+                @test begin
+                    write_embedding(emb_ind, "tiny.iem")
+                    isfile("tiny.iem")
+                end
+            end
+            @testset "Read Binary Embeddings" begin
+                @test isa(read_emb("tiny.wem"), WordEmbedding)
+                @test isa(read_indexed_emb("tiny.iem"), IndexedWordEmbedding)
+                @test isa(read_embedding("tiny.wem"), WordEmbedding)
+                @test isa(read_embedding("tiny.iem"), IndexedWordEmbedding)
+            end
+            rm("tiny.iem")
+            rm("tiny.wem")
+        end
     end
 end
+
+# Coverage and Cleanup
+# Pkg.add("Coverage")
+# # process '*.cov' files
+# coverage = process_folder()
+# covered_lines, total_lines = get_summary(coverage)
+# LCOV.writefile("julia-lcov.info", coverage)
+# Pkg.rm("Coverage")
+# Pkg.resolve()
