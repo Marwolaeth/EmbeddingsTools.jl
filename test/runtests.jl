@@ -20,7 +20,7 @@ using JET
             # Vocabulary Limit
             @test read_embedding("tiny.vec", max_vocab_size=2).vocab[end] ≡ "to"
             # Word List
-            @test read_embedding("tiny.vec", keep_words=["!"]).vocab[1] == "!"
+            @test read_embedding("tiny.vec", keep_words=["!"]).vocab[1] ≡ "!"
             # Conventional reading function
             @test EmbeddingsTools.read_giant_vec("tiny.vec").vocab[end] ≡ "!"
             @test EmbeddingsTools.read_giant_vec(
@@ -31,7 +31,7 @@ using JET
                 "tiny.vec",
                 keep_words=["to", "!"]
             ).vocab[1] ≡ "to"
-            # Empty keep_words
+            # Empty `keep_words`
             @test EmbeddingsTools.read_giant_vec(
                 "tiny.vec",
                 keep_words=Vector{String}()
