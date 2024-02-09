@@ -1,0 +1,21 @@
+comment: false
+
+coverage:
+  range: 90...100
+  round: nearest
+  precision: 1
+
+  status:
+    project:
+      default:
+        target: 90%
+        threshold: 1%
+        informational: true
+    patch:
+      default:
+        target: 80%
+        threshold: 1%
+        informational: true
+
+codecov:
+  token: ${{ secrets.CODECOV_TOKEN }}
