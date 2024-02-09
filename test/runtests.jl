@@ -37,6 +37,23 @@ using JET
                 keep_words=Vector{String}()
             ).vocab[end] ≡ "!"
         end
+        @testset "Utility Functions" begin
+            emb = read_vec("tiny.vec")
+            emb_ind = index(emb)
+            words = ["!", "vainly", "I", "had", "sought", "to", "borrow"]
+            @test sum(EmbeddingsTools._check_tokens(words, emb.vocab)) ≡ 2
+            @test sum(EmbeddingsTools._check_tokens(words, emb_ind.vocab)) ≡ 2
+            @test length(
+                EmbeddingsTools._get_vocab_indices_safe(words, emb.vocab)
+            ) ≡ length(words)
+            @test length(
+                EmbeddingsTools._get_vocab_indices_safe(words, emb_ind.vocab)
+            ) ≡ length(words)
+            @test length(
+                EmbeddingsTools._get_vocab_indices(["!", "to"], emb.vocab)
+            ) ≡ 2
+            @test EmbeddingsTools._get_vocab_index(words[1], emb.vocab) ≡ 4
+        end
         @testset "Embedding Operations" begin
             # Indexing
             @testset "Indexing Embeddings" begin
@@ -179,6 +196,7 @@ rm("tiny.wem")
 # # process '*.cov' files
 # coverage = process_folder()
 # covered_lines, total_lines = get_summary(coverage)
+# println("Coverage: $(round((covered_lines / total_lines) * 100, digits=2))%")
 # LCOV.writefile("julia-lcov.info", coverage)
 # Pkg.rm("Coverage")
 # Pkg.resolve()

@@ -30,8 +30,10 @@ Returns a vector of logical values indicating whether each of the `words` is pre
 )::Vector{Bool}
     n_words = length(words)
     in_vocab = zeros(Bool, n_words)
+
+    vocabulary = Set(vocab)
     @inbounds Threads.@threads for i ∈ 1:n_words
-        in_vocab[i] = words[i] ∈ vocab
+        in_vocab[i] = words[i] ∈ vocabulary
     end
 
     return in_vocab
@@ -44,7 +46,7 @@ end
         vocab::Vector{String}
     )::Vector{Int}
 
-Returns a vector of indices of each `word` in `words` in the vocabulary `vocab` if `word` is present in the vocabulary.
+Returns a vector of indices of each `word` in `words` in the vocabulary `vocab`. Assumes that `word` is present in the vocabulary.
 """
 @inline function _get_vocab_indices(
     words::Vector{String},
@@ -54,10 +56,29 @@ Returns a vector of indices of each `word` in `words` in the vocabulary `vocab` 
 
     idx = zeros(Int, n_words)
     @inbounds Threads.@threads for i ∈ 1:n_words
-        found = Base.findfirst(vocab .≡ words[i])
-        if !isnothing(found)
-            idx[i] = found
-        end
+        idx[i] = Base.findfirst(vocab .≡ words[i])
+    end
+    return idx
+end
+
+"""
+    _get_vocab_indices_safe(
+        words::Vector{String},
+        vocab::Vector{String}
+    )::Vector{Int}
+
+Returns a vector of indices of each `word` in `words` in the vocabulary `vocab` if `word` is present in the vocabulary and zeros for out-of-vocabulary words.
+"""
+@inline function _get_vocab_indices_safe(
+    words::Vector{String},
+    vocab::Vector{String}
+)::Vector{Int}
+    n_words = length(words)
+
+    idx = zeros(Int, n_words)
+    in_vocab::Vector{Bool} = _check_tokens(words, vocab)
+    @inbounds Threads.@threads for i ∈ (1:n_words)[in_vocab]
+        idx[i] = Base.findfirst(vocab .≡ words[i])
     end
     return idx
 end
@@ -180,7 +201,11 @@ function read_giant_vec(
             # Don't collect `keep_words` that are out of `max_vocab_size`
             max_vocab_size = min(length(keep_words), max_vocab_size)
             keep_words = keep_words[1:max_vocab_size]
+            kw_set = Set(keep_words)
         end
+    else
+        # Just for safety
+        kw_set = Set{String}()
     end
 
     # Pre-allocate
@@ -199,7 +224,7 @@ function read_giant_vec(
             l = readline(fh)
             embedding = split(l, delim)
             word = embedding[1]
-            if isnothing(keep_words) || (word ∈ keep_words)
+            if isnothing(keep_words) || (word ∈ kw_set)
                 if !isnothing(keep_words)
                     ind = _get_vocab_index(word, keep_words)
                 else
@@ -207,7 +232,10 @@ function read_giant_vec(
                 end
                 if ind > 0
                     emb.vocab[ind] = word
-                    emb.embeddings[:, ind] .= Base.parse.(Float32, @view embedding[2:end])
+                    emb.embeddings[:, ind] .= Base.parse.(
+                        Float32,
+                        view(embedding, 2:(ndims+1))
+                    )
                 end
                 index += 1
             end
@@ -309,6 +337,7 @@ function read_embedding(
 
         # Pre-allocate the final vocabulary
         initial_vocab::Array{String} = keep_words
+        kw_set = Set(keep_words)
         # Pre-allocate the entire vocabulary from the file
         ## We wouldn't need this value if no `keep_words` provided
         vocab_placeholder = Array{String}(undef, ntokens)
@@ -325,7 +354,7 @@ function read_embedding(
         ndims                                  # Embedding Dimensionality
     )
 
-    if keep_only_selected_words && !isnothing(keep_words) # JET please get it don't be so dumb
+    if keep_only_selected_words # JET please get it don't be so dumb
         # Very slow even for a collection of words that is only moderate in size
         ## Pythonistas won't mind
 
