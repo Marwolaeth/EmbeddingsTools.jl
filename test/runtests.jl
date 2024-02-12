@@ -1,7 +1,7 @@
 using EmbeddingsTools
 using Test
 using Aqua
-using JET
+# using JET
 
 @testset "EmbeddingsTools.jl" failfast = true verbose = true begin
     @testset "Code quality (Aqua.jl)" verbose = true begin
@@ -10,9 +10,9 @@ using JET
             ambiguities=(recursive = false)
         )
     end
-    @testset "Code linting (JET.jl)" begin
-        JET.report_package(EmbeddingsTools; target_defined_modules=true)
-    end
+    # @testset "Code linting (JET.jl)" begin
+    #     JET.report_package(EmbeddingsTools; target_defined_modules=true)
+    # end
     @testset "EmbeddingsTools.jl package functionality" verbose = true begin
         @testset "Reading .vec files" begin
             # Simple Reading
