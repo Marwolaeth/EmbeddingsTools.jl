@@ -25,7 +25,7 @@ Pkg.add("https://github.com/Marwolaeth/EmbeddingsTools.jl.git")
 
 The package is intended to read local embedding files, and it currently supports only text files (e.g., `.vec`) and binary Julia files. The package can perform basic operations on these embedding files.
 
-The embeddings are represented as either `WordEmbedding` or `IndexedWordEmbedding` types. Both types contain an embedding table and a token vocabulary that is similar to embedding objects in **Embeddings.jl**. They also have `ntokens` and `ndims` fields to store the dimensionality of an embedding table. In addition, `IndexedWordEmbedding` objects have an extra lookup dictionary that maps its tokens to corresponding embedding vectors' views. 
+The embeddings are represented as either `WordEmbedding` or `IndexedWordEmbedding` types. Both types contain an embedding table and a token vocabulary that is similar to embedding objects in **Embeddings.jl**. They also have `ntokens` and `ndims` fields to store the dimensionality of an embedding table. In addition, `IndexedWordEmbedding` objects have an extra lookup dictionary that maps its tokens to corresponding embedding vectors' views.
 
 Indexing is useful when the embedding table must be aligned with a pre-existing vocabulary, such as the one obtained from a corpus of texts.
 
