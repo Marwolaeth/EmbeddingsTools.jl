@@ -287,8 +287,7 @@ If `max_vocab_size` is specified, the function limits the size of the vector to 
 
 If the file is a `WordEmbedding` object within a Julia binary file (with extension `.jld` or in specific formats `.emb` or `.wem`), the entire embedding is loaded, and keyword arguments are not applicable. You can also use the `read_emb()` function directly on binary files. For pre-saved indexed embeddings, `read_indexed_emb()` currently is the only option.
 
-Notes
-=====
+# Notes
 
 Note that if you set `max_vocab_size` ≥ 45k, the function's performance may suffer compared to `limit(read_embedding(path), max_vocab_size)`. This is because using this parameter restricts CSV.jl jobs to a single thread. However, using `max_vocab_size` results in less memory allocation than reading the entire file.
     
