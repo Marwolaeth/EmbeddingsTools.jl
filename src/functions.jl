@@ -8,10 +8,10 @@ include("reduction.jl")
 """
     _ext(path::AbstractString)::String
 
-Returns the extension of file in `path`, if any, and an empty string otherwise.
+Returns the extension of the file in `path`, if any, and an empty string otherwise.
 """
 @inline function _ext(path::AbstractString)::String
-    ext = Base.splitext(path)[2]
+    ext = Base.splitext(path)[end]
     return ext
 end
 
@@ -103,7 +103,7 @@ end
 
 """
     _get_vocab_index(
-        word::String,
+        word::SubString{String},
         vocab::Vector{String}
     )::Int
 
@@ -123,7 +123,7 @@ end
 """
     read_vec(path::AbstractString; delim::AbstractChar=' ')::WordEmbedding
 
-The function `read_vec()` is used to read a local embedding matrix from a text file (.txt, .vec, etc) at a given `path`. It creates a `WordEmbedding` object using the CSV.jl package. The delimiter used for the text file can be set using the `delim` parameter. This function is a simplified version of `read_embedding()` and it always reads in the entire embedding table, making the logic more straightforward.
+The function `read_vec()` reads a local embedding matrix from a text file (.txt, .vec, etc) at a given `path`. It creates a `WordEmbedding` object using the CSV.jl package. The delimiter used for the text file can be set using the `delim` parameter. This function is a simplified version of `read_embedding()` and it always reads in the entire embedding table, making the logic more straightforward.
 """
 function read_vec(path; delim=' ')::WordEmbedding
     # Read dimensionality
@@ -178,7 +178,7 @@ end
         keep_words::Union{Vector{String},Nothing}=nothing
     )::WordEmbedding
 
-The conservative version of `read_embedding()` that handles large embedding tables, such as those used in FastText. It is adapted from a similar function in Embeddings.jl. The function reads a local embedding matrix from a specified `path` by going through each line and creates a `WordEmbedding` object. Additionally, you can provide the delimiter using `delim` and retain only certain words by specifying a list `keep_words`. However, this function can be slow, so we recommend setting the `max_vocab_size` parameter to a value less than 150k.
+The conservative version of `read_embedding()` handles large embedding tables, such as those used in FastText. It is adapted from a similar function in Embeddings.jl. The function reads a local embedding matrix from a specified `path` by going through each line and creates a `WordEmbedding` object. Additionally, you can provide the delimiter using `delim` and retain only certain words by specifying a list `keep_words`. However, this function can be slow, so we recommend setting the `max_vocab_size` parameter to a value less than 150k.
 """
 function read_giant_vec(
     path;
@@ -281,7 +281,7 @@ end
         keep_words::Union{Vector{String},Nothing}=nothing
     )::WordEmbedding
 
-The function `read_embedding()` is used to read embedding files in a conventional way. It creates a `WordEmbedding` object using CSV.jl. The function takes a path to the local embedding vector as an argument and has two optional keyword arguments: `max_vocab_size` and `keep_words`.
+The function `read_embedding()` reads embedding files conventionally. It creates a `WordEmbedding` object using CSV.jl. The function takes a path to the local embedding vector as an argument and has two optional keyword arguments: `max_vocab_size` and `keep_words`.
 
 If `max_vocab_size` is specified, the function limits the size of the vector to that number. If a vector `keep_words` is provided, it only keeps those words. If a word in `keep_words` is not found, the function returns a zero vector for that word.
 
