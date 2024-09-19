@@ -17,10 +17,10 @@ function reduce_pca(X::Matrix{Float32}, k::Int=2)::Matrix{Float32}
     idx = p:-1:(p-(k-1))
 
     # Pre-allocate
-    X₀ = zeros(Float32, p, n)  # Centered source data
-    Σ = zeros(Float32, p, p)   # The covariance matrix
-    P = zeros(Float32, p, k)   # The projection (Selected eigenvectors)
-    Y = zeros(Float32, k, n)   # Transformed data (the result)
+    X₀ = zeros(Float32, p, n)   # Centered source data
+    Σ  = zeros(Float32, p, p)   # The covariance matrix
+    P  = zeros(Float32, p, k)   # The projection (Selected eigenvectors)
+    Y  = zeros(Float32, k, n)   # Transformed data (the result)
 
     # The Mean Vector
     μ = mean(X, dims=2)
