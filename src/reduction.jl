@@ -18,18 +18,18 @@ function reduce_pca(X::Matrix{Float32}, k::Int=2)::Matrix{Float32}
 
     # Pre-allocate
     X₀ = zeros(Float32, p, n)   # Centered source data
-    Σ  = zeros(Float32, p, p)   # The covariance matrix
-    P  = zeros(Float32, p, k)   # The projection (Selected eigenvectors)
-    Y  = zeros(Float32, k, n)   # Transformed data (the result)
+    Σ = zeros(Float32, p, p)   # The covariance matrix
+    P = zeros(Float32, p, k)   # The projection (Selected eigenvectors)
+    Y = zeros(Float32, k, n)   # Transformed data (the result)
 
     # The Mean Vector
     μ = mean(X, dims=2)
 
     # Center
-    @inbounds X₀ .= X .- μ
+    X₀ .= X .- μ
 
     # The Covariance Matrix
-    @inbounds Σ .= (X₀ * X₀') / (n - 1)
+    Σ .= (X₀ * X₀') / (n - 1)
 
     # Eigenstuff
     λ, V = eigen(Σ)
@@ -45,8 +45,8 @@ function reduce_pca(X::Matrix{Float32}, k::Int=2)::Matrix{Float32}
         of the total variance\n"
     )
 
-    @inbounds P .= V[:, idx]
-    @inbounds Y .= P'X₀
+    P .= V[:, idx]
+    Y .= P'X₀
 
     return Y
 end
@@ -82,7 +82,7 @@ function reduce_svd(X::Matrix{Float32}, k::Int=2)::Matrix{Float32}
         of the total variance\n"
     )
 
-    @inbounds Y' .= U[:, idx] * Σ
+    Y' .= U[:, idx] * Σ
 
     return Y
 end

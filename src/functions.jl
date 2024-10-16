@@ -32,7 +32,7 @@ Returns a vector of logical values indicating whether each of the `words` is pre
     in_vocab = zeros(Bool, n_words)
 
     vocabulary = Set(vocab)
-    @inbounds Threads.@threads for i ∈ 1:n_words
+    Threads.@threads for i ∈ 1:n_words
         in_vocab[i] = words[i] ∈ vocabulary
     end
 
@@ -55,7 +55,7 @@ Returns a vector of indices of each `word` in `words` in the vocabulary `vocab`.
     n_words = length(words)
 
     idx = zeros(Int, n_words)
-    @inbounds Threads.@threads for i ∈ 1:n_words
+    Threads.@threads for i ∈ 1:n_words
         idx[i] = Base.findfirst(vocab .≡ words[i])
     end
     return idx
@@ -77,7 +77,7 @@ Returns a vector of indices of each `word` in `words` in the vocabulary `vocab` 
 
     idx = zeros(Int, n_words)
     in_vocab::Vector{Bool} = _check_tokens(words, vocab)
-    @inbounds Threads.@threads for i ∈ (1:n_words)[in_vocab]
+    Threads.@threads for i ∈ (1:n_words)[in_vocab]
         idx[i] = Base.findfirst(vocab .≡ words[i])
     end
     return idx
@@ -142,7 +142,7 @@ function read_vec(path; delim=' ')::WordEmbedding
     )
 
     # Read CSV & Write Vectors column-wise
-    @inbounds emb.embeddings .= CSV.Tables.matrix(
+    emb.embeddings .= CSV.Tables.matrix(
         CSV.File(
             path;
             quotechar='`',
@@ -155,7 +155,7 @@ function read_vec(path; delim=' ')::WordEmbedding
     )'
 
     # Note: is it Ok to read the file twice? How can we avoid it?
-    @inbounds emb.vocab .= CSV.Tables.getcolumn(
+    emb.vocab .= CSV.Tables.getcolumn(
         CSV.File(
             path;
             quotechar='`',
@@ -220,7 +220,7 @@ function read_giant_vec(
     index = 1
     open(path; read=true) do fh
         readline(fh)
-        @inbounds while !eof(fh)
+        while !eof(fh)
             l = readline(fh)
             embedding = split(l, delim)
             word = embedding[1]
@@ -358,7 +358,7 @@ function read_embedding(
         ## Pythonistas won't mind
 
         # Read the full vocabulary
-        @inbounds vocab_placeholder .= CSV.Tables.getcolumn(
+        vocab_placeholder .= CSV.Tables.getcolumn(
             CSV.File(
                 path;
                 quotechar='`',
@@ -387,12 +387,12 @@ function read_embedding(
         idx = _get_vocab_indices(keep_words[in_vocab], vocab_placeholder)
 
         # Fill the word-vectors for words that have been found
-        @inbounds emb.embeddings[:, in_vocab] .= CSV.Tables.matrix(tab[idx])'
+        emb.embeddings[:, in_vocab] .= CSV.Tables.matrix(tab[idx])'
     else
         # Read CSV & Write Vectors column-wise
         ## Note: `max_vocab_size` requires using a single thread
         ### perhaps due to a data race when `limit` is provided
-        @inbounds emb.embeddings .= CSV.Tables.matrix(
+        emb.embeddings .= CSV.Tables.matrix(
             CSV.File(
                 path;
                 quotechar='`',
@@ -407,7 +407,7 @@ function read_embedding(
         )'
 
         # Read the first `max_vocab_size` word strings
-        @inbounds emb.vocab .= CSV.Tables.getcolumn(
+        emb.vocab .= CSV.Tables.getcolumn(
             CSV.File(
                 path;
                 quotechar='`',
@@ -506,7 +506,7 @@ It's worth noting that this method is relatively slow and doesn't assume the sou
     idx = _get_vocab_indices(tokens[in_vocab], emb.vocab)
 
     # Fill the word-vectors for words that have been found
-    @inbounds sub.embeddings[:, in_vocab] .= emb.embeddings[:, idx]
+    sub.embeddings[:, in_vocab] .= emb.embeddings[:, idx]
 
     return sub
 end
@@ -534,7 +534,7 @@ Note that the output of the `subspace()` function is not an indexed embedding. S
     )
 
     # Fill
-    @inbounds @simd for i ∈ 1:ntokens
+    @simd for i ∈ 1:ntokens
         sub.embeddings[:, i] .= safe_get(emb, tokens[i])
     end
 
