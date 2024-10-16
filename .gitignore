@@ -28,3 +28,6 @@ Manifest.toml
 misc
 *.wem
 *.iem
+
+# Drafts
+dev
