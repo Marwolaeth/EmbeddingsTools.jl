@@ -1,10 +1,15 @@
 import CSV: CSV, CSV.File, CSV.Tables
+using Parsers
+using Mmap
 using JLD2
 include("types.jl")
 include("reduction.jl")
 
 # FUNCTIONS ----
 ## Utilities ----
+const LF = UInt8('\n')
+const CR = UInt8('\r')
+
 """
     _ext(path::AbstractString)::String
 
@@ -14,6 +19,61 @@ Returns the extension of the file in `path`, if any, and an empty string otherwi
     ext = Base.splitext(path)[end]
     return ext
 end
+
+@inline function _parse_dimensionality(
+    s::Union{AbstractString, SubString},
+    opts::Parsers.Options
+)::Tuple{Int, Int}
+    l = sizeof(s)
+
+    ntokens_parse = Parsers.xparse(Int, s, 1, l, opts)
+    pos = ntokens_parse.tlen + 1
+    ndims_parse = Parsers.xparse(Int, s, pos, l, opts)
+
+    return ntokens_parse.val, ndims_parse.val
+end
+
+@inline function _parse_dimensionality(
+    s::Union{AbstractString, SubString};
+    delim::Union{String, AbstractChar}
+)::Tuple{Int, Int}
+    l = sizeof(s)
+
+    opts = Parsers.Options(delim = delim)
+    ntokens_parse = Parsers.xparse(Int, s, 1, l, opts)
+    pos = ntokens_parse.tlen + 1
+    ndims_parse = Parsers.xparse(Int, s, pos, l, opts)
+
+    return ntokens_parse.val, ndims_parse.val
+end
+
+@inline function _parse_token(
+    s::Union{AbstractString, SubString},
+    delim::Union{String, AbstractChar}
+)::Tuple{String, Int, Int}
+    pos = findfirst(delim, s)
+    word::String = s[1:(pos - 1)]
+    return word, pos + 1, sizeof(s)
+end
+
+#=
+@inline function _parse_line(
+    s::Union{AbstractString, SubString},
+    n::Integer,
+    pos::Int,
+    length::Int,
+    opts::Parsers.Options
+)::Vector{Float32}
+    v = Vector{Float32}(undef, n)
+
+    @inbounds @simd for d in 1:n
+        res  = Parsers.xparse(Float32, s, pos, length, opts)
+        v[d] = res.val
+        pos += res.tlen
+    end
+    return v
+end
+=#
 
 ## Check if tokens are present in an embedding vocabulary ----
 """
@@ -127,7 +187,7 @@ The function `read_vec()` reads a local embedding matrix from a text file (.txt,
 """
 function read_vec(path; delim=' ')::WordEmbedding
     # Read dimensionality
-    ntokens, ndims = Base.parse.(Int, split(readline(path), delim))
+    ntokens, ndims = _parse_dimensionality(readline(path), delim = delim)
 
     # Don't try to read an entire huge vector of tokens
     ## Tackle it line-by-line
@@ -186,8 +246,100 @@ function read_giant_vec(
     max_vocab_size::Union{Int,Nothing}=nothing,
     keep_words::Union{Vector{String},Nothing}=nothing
 )::WordEmbedding
+    opts = Parsers.Options(delim=delim) # Parsers options created once
+
+    # Memory-map the entire file
+    io = open(path, "r")
+    buf = Mmap.mmap(io, Vector{UInt8})
+
+    # Find the first EOL: CR = \r, LF = \n
+    first_nl = findfirst(==(CR), buf)
+    isnothing(first_nl) && (first_nl = findfirst(==(LF), buf))
+
+    # Read Dimensionality
+    header_str = String(buf[1:first_nl-1])
+    ntokens, ndims = _parse_dimensionality(header_str, delim=delim)
+
+    # Set limit
+    limit = isnothing(max_vocab_size) ? ntokens : min(max_vocab_size, ntokens)
+
+    # Selected words in a dictionary
+    kw_dict = if !isnothing(keep_words) && !isempty(keep_words)
+        Dict(w => i for (i, w) in enumerate(keep_words))
+    else
+        nothing
+    end
+
+    # Pre-allocate
+    emb = WordEmbedding(
+        Array{Float32}(undef, ndims, limit),  # Embeddings Matrix (transposed)
+        Array{String}(undef, limit),          # Token Vocabulary
+        limit,                                # Vocabulary Size
+        ndims                                 # Embedding Dimensionality
+    )
+
+    # Buffer Parsing
+    pos = first_nl + 1
+    len_buf = length(buf)
+    idx = 1
+
+    while pos <= len_buf && (buf[pos] == LF || buf[pos] == CR)
+        pos += 1
+    end
+
+    while pos <= len_buf && idx <= limit
+        # Find the first word boundary
+        word_start = pos
+        while pos <= len_buf && buf[pos] != UInt8(delim)
+            pos += 1
+        end
+        
+        # Создаем строку-слово (это единственная аллокация строки на итерацию)
+        word = String(buf[word_start:pos-1])
+        
+        # Пропускаем разделитель
+        pos += 1
+        
+        # Решаем, нужно ли нам это слово
+        target_idx = isnothing(kw_dict) ? idx : get(kw_dict, word, 0)
+        
+        if target_idx > 0 && target_idx <= limit
+            emb.vocab[target_idx] = word
+            # Parse right from buffer
+            for d in 1:ndims
+                res = Parsers.xparse(Float32, buf, pos, len_buf, opts)
+                emb.embeddings[d, target_idx] = res.val
+                pos += res.tlen
+            end
+            
+            if isnothing(kw_dict)
+                idx += 1
+            end
+        else
+            # Если слово не нужно, всё равно нужно пропустить числа до конца строки
+            for d in 1:ndims
+                res = Parsers.xparse(Float32, buf, pos, len_buf, opts)
+                pos += res.tlen
+            end
+        end
+    end
+
+    close(io) # Mmap autocloses
+
+    return emb
+end
+
+#=
+function read_giant_vec(
+    path;
+    delim=' ',
+    max_vocab_size::Union{Int,Nothing}=nothing,
+    keep_words::Union{Vector{String},Nothing}=nothing
+)::WordEmbedding
+    opts = Parsers.Options(delim=delim) # Parsers options created once
+
     # Read dimensionality
-    ntokens, ndims = Base.parse.(Int, split(readline(path), delim))
+    ntokens, ndims = _parse_dimensionality(readline(path), opts)
 
     if isnothing(max_vocab_size) || !(0 < max_vocab_size < ntokens)
         max_vocab_size = ntokens
@@ -222,8 +374,8 @@ function read_giant_vec(
         readline(fh)
         while !eof(fh)
             l = readline(fh)
-            embedding = split(l, delim)
-            word = embedding[1]
+            # The word, the starting position of the numeric vector, and the length of the line
+            word, pos, length = _parse_token(l, delim)
             if isnothing(keep_words) || (word ∈ kw_set)
                 if !isnothing(keep_words)
                     ind = _get_vocab_index(word, keep_words)
@@ -232,9 +384,8 @@ function read_giant_vec(
                 end
                 if ind > 0
                     emb.vocab[ind] = word
-                    emb.embeddings[:, ind] .= Base.parse.(
-                        Float32,
-                        view(embedding, 2:(ndims+1))
+                    emb.embeddings[:, ind] .= _parse_line(
+                        l, ndims, pos, length, opts
                     )
                 end
                 index += 1
@@ -246,6 +397,7 @@ function read_giant_vec(
 
     return emb
 end
+=#
 
 """
     read_emb(path::AbstractString)::WordEmbedding
@@ -306,7 +458,7 @@ function read_embedding(
     # (file_ext ∈ BINARY_EXTS_INDEXD) && return read_indexed_emb(path)
 
     # Read dimensionality
-    ntokens, ndims = Base.parse.(Int, split(readline(path), delim))
+    ntokens, ndims = _parse_dimensionality(readline(path), delim = delim)
 
     # Where is the best limit?
     (ntokens ≥ 600_000) && return read_giant_vec(
