@@ -191,7 +191,7 @@ function read_vec(path; delim=' ')::WordEmbedding
 
     # Don't try to read an entire huge vector of tokens
     ## Tackle it line-by-line
-    (ntokens ≥ 600_000) && return read_giant_vec(path, delim=delim)
+    (ntokens ≥ 600_000) && return read_big_vec(path, delim=delim)
 
     # Pre-allocate
     emb = WordEmbedding(
@@ -231,7 +231,7 @@ function read_vec(path; delim=' ')::WordEmbedding
 end
 
 """
-    read_giant_vec(
+    read_big_vec(
         path::AbstractString;
         delim::AbstractChar=' ',
         max_vocab_size::Union{Int,Nothing}=nothing,
@@ -240,7 +240,7 @@ end
 
 The conservative version of `read_embedding()` handles large embedding tables, such as those used in FastText. It is adapted from a similar function in Embeddings.jl. The function reads a local embedding matrix from a specified `path` by going through each line and creates a `WordEmbedding` object. Additionally, you can provide the delimiter using `delim` and retain only certain words by specifying a list `keep_words`. However, this function can be slow, so we recommend setting the `max_vocab_size` parameter to a value less than 150k.
 """
-function read_giant_vec(
+function read_big_vec(
     path;
     delim=' ',
     max_vocab_size::Union{Int,Nothing}=nothing,
@@ -330,7 +330,7 @@ function read_giant_vec(
 end
 
 #=
-function read_giant_vec(
+function read_big_vec(
     path;
     delim=' ',
     max_vocab_size::Union{Int,Nothing}=nothing,
@@ -461,7 +461,7 @@ function read_embedding(
     ntokens, ndims = _parse_dimensionality(readline(path), delim = delim)
 
     # Where is the best limit?
-    (ntokens ≥ 600_000) && return read_giant_vec(
+    (ntokens ≥ 600_000) && return read_big_vec(
         path, delim=delim, max_vocab_size=max_vocab_size, keep_words=keep_words
     )
 

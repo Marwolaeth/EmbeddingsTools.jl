@@ -22,17 +22,17 @@ using Aqua
             # Word List
             @test read_embedding("tiny.vec", keep_words=["!"]).vocab[1] ≡ "!"
             # Conventional reading function
-            @test EmbeddingsTools.read_giant_vec("tiny.vec").vocab[end] ≡ "!"
-            @test EmbeddingsTools.read_giant_vec(
+            @test EmbeddingsTools.read_big_vec("tiny.vec").vocab[end] ≡ "!"
+            @test EmbeddingsTools.read_big_vec(
                 "tiny.vec",
                 max_vocab_size=2
             ).vocab[end] ≡ "to"
-            @test EmbeddingsTools.read_giant_vec(
+            @test EmbeddingsTools.read_big_vec(
                 "tiny.vec",
                 keep_words=["to", "!"]
             ).vocab[1] ≡ "to"
             # Empty `keep_words`
-            @test EmbeddingsTools.read_giant_vec(
+            @test EmbeddingsTools.read_big_vec(
                 "tiny.vec",
                 keep_words=Vector{String}()
             ).vocab[end] ≡ "!"
