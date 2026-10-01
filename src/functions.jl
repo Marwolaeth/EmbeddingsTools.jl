@@ -294,13 +294,13 @@ function read_big_vec(
             pos += 1
         end
         
-        # Создаем строку-слово (это единственная аллокация строки на итерацию)
+        #  Find a word
         word = String(buf[word_start:pos-1])
         
-        # Пропускаем разделитель
+        # Skip the delimeter
         pos += 1
         
-        # Решаем, нужно ли нам это слово
+        # Check if we need the word
         target_idx = isnothing(kw_dict) ? idx : get(kw_dict, word, 0)
         
         if target_idx > 0 && target_idx <= limit
@@ -316,7 +316,7 @@ function read_big_vec(
                 idx += 1
             end
         else
-            # Если слово не нужно, всё равно нужно пропустить числа до конца строки
+            # If not in `keep_words`, still need to skip the line
             for d in 1:ndims
                 res = Parsers.xparse(Float32, buf, pos, len_buf, opts)
                 pos += res.tlen
