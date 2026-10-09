@@ -103,12 +103,12 @@ embtable2 = subspace(embtable_ind, words)
 
 ### Dimensionality Reduction
 
-The `reduce_emb()` function allows you to decrease the size of embedding objects, whether they are indexed or not. You can choose between two reduction techniques (specified using the `method` keyword): `pca` (the default) for Principal Component Analysis, or `svd` for Singular Value Decomposition.
+The `reduce_emb()` function allows you to decrease the size of embedding objects, whether they are indexed or not. You can choose between two reduction techniques (specified using the `method` keyword): `:pca` (the default) for Principal Component Analysis, or `:svd` for Singular Value Decomposition.
 
 ```julia
 # Reduce the dimensionality of the word embeddings using PCA or SVD
 embtable20 = reduce_emb(embtable, 20)
-embtable20_svd = reduce_emb(embtable, 20, method="svd")
+embtable20_svd = reduce_emb(embtable, 20, method=:svd)
 ```
 
 ## Compatibility
