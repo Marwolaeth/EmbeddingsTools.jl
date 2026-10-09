@@ -731,9 +731,9 @@ function limit(emb::IndexedWordEmbedding, n::Integer)::IndexedWordEmbedding
 end
 
 """
-    reduce_emb(emb::AbstractEmbedding, k::Integer; method::String="pca")::WordEmbedding
+    reduce_emb(emb::WordEmbedding, k::Integer; method::Symbol=:pca)::WordEmbedding
 
-The following function takes an existing word embedding and reduces its embedding vectors to a specified number of dimensions `k`. The function returns a new WordEmbedding object. You can choose between two reduction techniques by setting the `method` parameter to either `pca` for Principal Component Analysis or `svd` for Singular Value Decomposition.
+The following function takes an existing word embedding and reduces its embedding vectors to a specified number of dimensions `k`. The function returns a new WordEmbedding object. You can choose between two reduction techniques by setting the `method` parameter to either `:pca` for Principal Component Analysis or `:svd` for Singular Value Decomposition.
 """
 function reduce_emb(emb::AbstractEmbedding, k::Integer; method::Symbol=:pca)::WordEmbedding
     # Current dimensions
@@ -760,9 +760,9 @@ function reduce_emb(emb::AbstractEmbedding, k::Integer; method::Symbol=:pca)::Wo
 end
 
 """
-    reduce_emb(emb::IndexedWordEmbedding, k::Integer; method::String="pca")::WordEmbedding
+    reduce_emb(emb::IndexedWordEmbedding, k::Integer; method::Symbol=:pca)::IndexedWordEmbedding
 
-The following function takes an existing indexed word embedding and reduces its embedding vectors to a specified number of dimensions `k`. The function returns a new IndexedWordEmbedding object. You can choose between two reduction techniques by setting the `method` parameter to either `pca` for Principal Component Analysis or `svd` for Singular Value Decomposition.
+The following function takes an existing indexed word embedding and reduces its embedding vectors to a specified number of dimensions `k`. The function returns a new IndexedWordEmbedding object. You can choose between two reduction techniques by setting the `method` parameter to either `:pca` for Principal Component Analysis or `:svd` for Singular Value Decomposition.
 """
 function reduce_emb(
     emb::IndexedWordEmbedding,
