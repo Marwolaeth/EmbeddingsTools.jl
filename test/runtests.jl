@@ -122,12 +122,12 @@ using Aqua
                 emb = read_vec("tiny.vec")
                 emb_ind = index(emb)
                 @test isa(reduce_emb(emb, 2), WordEmbedding)
-                @test isa(reduce_emb(emb, 2, method="SVD"), WordEmbedding)
+                @test isa(reduce_emb(emb, 2, method=:svd), WordEmbedding)
                 @test isa(reduce_emb(emb_ind, 2), IndexedWordEmbedding)
-                @test isa(reduce_emb(emb_ind, 2, method="SVD"), IndexedWordEmbedding)
+                @test isa(reduce_emb(emb_ind, 2, method=:svd), IndexedWordEmbedding)
                 @test try
                     # This should throw an error:
-                    reduce_emb(emb, 2, method="ppca")
+                    reduce_emb(emb, 2, method=:mds)
                 catch e
                     # A specific kind of error
                     sprint(showerror, e)
@@ -137,7 +137,7 @@ using Aqua
                 @test size(reduce_emb(emb, 2).embeddings) ≡ (2, 4)
                 @test size(reduce_emb(emb, 13).embeddings) ≡ (4, 4)
                 @test reduce_emb(emb_ind, 1).ndims ≡ 1
-                @test reduce_emb(emb_ind, 13, method="svd").ndims ≡ 4
+                @test reduce_emb(emb_ind, 13, method=:svd).ndims ≡ 4
             end
         end
         # Binary IO
