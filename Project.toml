@@ -19,7 +19,7 @@ LinearAlgebra = "1.9 - 1.13"
 Mmap = "1.9 - 1.13"
 Parsers = "~2.8"
 Statistics = "1.9 - 1.13"
-Test = "~1.10"
+Test = "1.9 - 1.13"
 julia = "1.9 - 1.14"
 
 [extras]
