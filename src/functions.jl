@@ -21,9 +21,9 @@ Returns the extension of the file in `path`, if any, and an empty string otherwi
 end
 
 @inline function _parse_dimensionality(
-    s::Union{AbstractString, SubString},
+    s::Union{AbstractString,SubString},
     opts::Parsers.Options
-)::Tuple{Int, Int}
+)::Tuple{Int,Int}
     l = sizeof(s)
 
     ntokens_parse = Parsers.xparse(Int, s, 1, l, opts)
@@ -34,12 +34,12 @@ end
 end
 
 @inline function _parse_dimensionality(
-    s::Union{AbstractString, SubString};
-    delim::Union{String, AbstractChar}
-)::Tuple{Int, Int}
+    s::Union{AbstractString,SubString};
+    delim::Union{String,AbstractChar}
+)::Tuple{Int,Int}
     l = sizeof(s)
 
-    opts = Parsers.Options(delim = delim)
+    opts = Parsers.Options(delim=delim)
     ntokens_parse = Parsers.xparse(Int, s, 1, l, opts)
     pos = ntokens_parse.tlen + 1
     ndims_parse = Parsers.xparse(Int, s, pos, l, opts)
@@ -48,11 +48,11 @@ end
 end
 
 @inline function _parse_token(
-    s::Union{AbstractString, SubString},
-    delim::Union{String, AbstractChar}
-)::Tuple{String, Int, Int}
+    s::Union{AbstractString,SubString},
+    delim::Union{String,AbstractChar}
+)::Tuple{String,Int,Int}
     pos = findfirst(delim, s)
-    word::String = s[1:(pos - 1)]
+    word::String = s[1:(pos-1)]
     return word, pos + 1, sizeof(s)
 end
 
@@ -185,9 +185,9 @@ end
 
 The function `read_vec()` reads a local embedding matrix from a text file (.txt, .vec, etc) at a given `path`. It creates a `WordEmbedding` object using the CSV.jl package. The delimiter used for the text file can be set using the `delim` parameter. This function is a simplified version of `read_embedding()` and it always reads in the entire embedding table, making the logic more straightforward.
 """
-function read_vec(path; delim=' ')::WordEmbedding
+function read_vec(path; delim=(' '))::WordEmbedding
     # Read dimensionality
-    ntokens, ndims = _parse_dimensionality(readline(path), delim = delim)
+    ntokens, ndims = _parse_dimensionality(readline(path), delim=delim)
 
     # Don't try to read an entire huge vector of tokens
     ## Tackle it line-by-line
@@ -205,7 +205,7 @@ function read_vec(path; delim=' ')::WordEmbedding
     emb.embeddings .= CSV.Tables.matrix(
         CSV.File(
             path;
-            quotechar='`',
+            quotechar=('`'),
             skipto=2,
             delim=delim,
             header=false,
@@ -218,7 +218,7 @@ function read_vec(path; delim=' ')::WordEmbedding
     emb.vocab .= CSV.Tables.getcolumn(
         CSV.File(
             path;
-            quotechar='`',
+            quotechar=('`'),
             skipto=2,
             delim=delim,
             header=false,
@@ -242,7 +242,7 @@ The conservative version of `read_embedding()` handles large embedding tables, s
 """
 function read_big_vec(
     path;
-    delim=' ',
+    delim=(' '),
     max_vocab_size::Union{Int,Nothing}=nothing,
     keep_words::Union{Vector{String},Nothing}=nothing
 )::WordEmbedding
@@ -257,7 +257,7 @@ function read_big_vec(
     isnothing(first_nl) && (first_nl = findfirst(==(LF), buf))
 
     # Read Dimensionality
-    header_str = String(buf[1:first_nl-1])
+    header_str = String(buf[1:(first_nl-1)])
     ntokens, ndims = _parse_dimensionality(header_str, delim=delim)
 
     # Set limit
@@ -293,16 +293,16 @@ function read_big_vec(
         while pos <= len_buf && buf[pos] != UInt8(delim)
             pos += 1
         end
-        
+
         #  Find a word
-        word = String(buf[word_start:pos-1])
-        
+        word = String(buf[word_start:(pos-1)])
+
         # Skip the delimeter
         pos += 1
-        
+
         # Check if we need the word
         target_idx = isnothing(kw_dict) ? idx : get(kw_dict, word, 0)
-        
+
         if target_idx > 0 && target_idx <= limit
             emb.vocab[target_idx] = word
             # Parse right from buffer
@@ -311,7 +311,7 @@ function read_big_vec(
                 emb.embeddings[d, target_idx] = res.val
                 pos += res.tlen
             end
-            
+
             if isnothing(kw_dict)
                 idx += 1
             end
@@ -447,7 +447,7 @@ In addition, using `keep_words` with as many as 1k selected words is significant
 """
 function read_embedding(
     path;
-    delim=' ',
+    delim=(' '),
     max_vocab_size::Union{Int,Nothing}=nothing,
     keep_words::Union{Vector{String},Nothing}=nothing
 )::WordEmbedding
@@ -458,7 +458,7 @@ function read_embedding(
     # (file_ext ∈ BINARY_EXTS_INDEXD) && return read_indexed_emb(path)
 
     # Read dimensionality
-    ntokens, ndims = _parse_dimensionality(readline(path), delim = delim)
+    ntokens, ndims = _parse_dimensionality(readline(path), delim=delim)
 
     # Where is the best limit?
     (ntokens ≥ 600_000) && return read_big_vec(
@@ -513,7 +513,7 @@ function read_embedding(
         vocab_placeholder .= CSV.Tables.getcolumn(
             CSV.File(
                 path;
-                quotechar='`',
+                quotechar=('`'),
                 skipto=2,
                 delim=delim,
                 header=false,
@@ -526,7 +526,7 @@ function read_embedding(
         # Connect the matrix inside the .vec file
         tab = CSV.File(
             path;
-            quotechar='`',
+            quotechar=('`'),
             skipto=2,
             delim=delim,
             header=false,
@@ -547,7 +547,7 @@ function read_embedding(
         emb.embeddings .= CSV.Tables.matrix(
             CSV.File(
                 path;
-                quotechar='`',
+                quotechar=('`'),
                 skipto=2,
                 limit=max_vocab_size,
                 delim=delim,
@@ -562,7 +562,7 @@ function read_embedding(
         emb.vocab .= CSV.Tables.getcolumn(
             CSV.File(
                 path;
-                quotechar='`',
+                quotechar=('`'),
                 skipto=2,
                 limit=max_vocab_size,
                 delim=delim,
@@ -735,13 +735,11 @@ end
 
 The following function takes an existing word embedding and reduces its embedding vectors to a specified number of dimensions `k`. The function returns a new WordEmbedding object. You can choose between two reduction techniques by setting the `method` parameter to either `pca` for Principal Component Analysis or `svd` for Singular Value Decomposition.
 """
-function reduce_emb(emb::AbstractEmbedding, k::Integer; method::String="pca")::WordEmbedding
+function reduce_emb(emb::AbstractEmbedding, k::Integer; method::Symbol=:pca)::WordEmbedding
     # Current dimensions
     p, n = size(emb.embeddings)
     # Limit k so that it can be computed
     k = min(k, p, n)
-    # Wrap the method argument
-    method = lowercase(method)
 
     sub = WordEmbedding(
         emb.embeddings[1:k, :],
@@ -750,9 +748,9 @@ function reduce_emb(emb::AbstractEmbedding, k::Integer; method::String="pca")::W
         k
     )
 
-    if method ≡ "pca"
+    if method ≡ :pca
         sub.embeddings .= reduce_pca(emb.embeddings, k)
-    elseif method ≡ "svd"
+    elseif method ≡ :svd
         sub.embeddings .= reduce_svd(emb.embeddings, k)
     else
         throw(UnknownReductionMethodException(method))
@@ -769,14 +767,12 @@ The following function takes an existing indexed word embedding and reduces its 
 function reduce_emb(
     emb::IndexedWordEmbedding,
     k::Integer;
-    method::String="pca"
+    method::Symbol=:pca
 )::IndexedWordEmbedding
     # Current dimensions
     p, n = size(emb.embeddings)
     # Limit k so that it can be computed
     k = min(k, p, n)
-    # Wrap the method argument
-    method = lowercase(method)
 
     sub = WordEmbedding(
         emb.embeddings[1:k, :],
@@ -785,9 +781,9 @@ function reduce_emb(
         k
     )
 
-    if method ≡ "pca"
+    if method ≡ :pca
         sub.embeddings .= reduce_pca(emb.embeddings, k)
-    elseif method ≡ "svd"
+    elseif method ≡ :svd
         sub.embeddings .= reduce_svd(emb.embeddings, k)
     else
         throw(UnknownReductionMethodException(method))

@@ -46,8 +46,11 @@ function Base.showerror(io::IO, e::OutOfVocabularyException)::Nothing
 end
 
 struct UnknownReductionMethodException <: Exception
-    meth::String
+    meth::Symbol
 end
 function Base.showerror(io::IO, e::UnknownReductionMethodException)::Nothing
-    print(io, "Uknown reduction method: “$(e.meth)”\n")
+    print(
+        io,
+        "Uknown reduction method: “$(e.meth)”\nMust be one of: {pca, svd}"
+    )
 end
