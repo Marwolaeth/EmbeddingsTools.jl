@@ -1,5 +1,5 @@
 import Statistics: mean
-import LinearAlgebra: eigen, svd, Diagonal
+import LinearAlgebra: eigen, svd, Diagonal, mul!
 
 """
     reduce_pca(X::Matrix{Float32}, k::Int=2)::Matrix{Float32}
@@ -17,19 +17,17 @@ function reduce_pca(X::Matrix{Float32}, k::Int=2)::Matrix{Float32}
     idx = p:-1:(p-(k-1))
 
     # Pre-allocate
-    X₀ = zeros(Float32, p, n)   # Centered source data
     Σ = zeros(Float32, p, p)   # The covariance matrix
     P = zeros(Float32, p, k)   # The projection (Selected eigenvectors)
     Y = zeros(Float32, k, n)   # Transformed data (the result)
 
-    # The Mean Vector
-    μ = mean(X, dims=2)
-
     # Center
-    X₀ .= X .- μ
+    X .-= mean(X, dims=2)
 
     # The Covariance Matrix
-    Σ .= (X₀ * X₀') / (n - 1)
+    Σ .= (X * X') ./ Float32(n - 1)
+    # d::Float32 = 1.0f0 / (n - 1)
+    # mul!(Σ, X, X', d, 1)
 
     # Eigenstuff
     λ, V = eigen(Σ)
@@ -46,7 +44,8 @@ function reduce_pca(X::Matrix{Float32}, k::Int=2)::Matrix{Float32}
     )
 
     P .= V[:, idx]
-    Y .= P'X₀
+    # Y .= P'X₀
+    mul!(Y, P', X)
 
     return Y
 end
@@ -65,8 +64,8 @@ function reduce_svd(X::Matrix{Float32}, k::Int=2)::Matrix{Float32}
     idx = 1:k
 
     # Pre-allocate
-    Y = zeros(Float32, k, n)   # Transformed data (the result)
-    Σ = zeros(Float32, k, k)   # Singular values matrix
+    Y = zeros(Float32, k, n)                    # Transformed data (the result)
+    Σ = Diagonal(ones(Float32, k))    # Singular values matrix
 
     # The decomposition
     U, d, _ = svd(X')
@@ -82,7 +81,8 @@ function reduce_svd(X::Matrix{Float32}, k::Int=2)::Matrix{Float32}
         of the total variance\n"
     )
 
-    Y' .= U[:, idx] * Σ
+    # Y' .= U[:, idx] * Σ
+    mul!(Y', U[:, idx], Σ)
 
     return Y
 end
